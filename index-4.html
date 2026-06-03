@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff5f0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="我的衣櫃">
+<title>👗 我的衣櫃 - Digital Wardrobe</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fef9f7;
+  --surface: #ffffff;
+  --surface2: #fff5f0;
+  --surface3: #ffecf0;
+  --primary: #ff6b9d;
+  --primary-light: #ff8db5;
+  --primary-dark: #e84a7c;
+  --text: #2d2d2d;
+  --text-dim: #888888;
+  --text-light: #b0b0b0;
+  --border: #f0e0e0;
+  --shadow: rgba(255, 107, 157, 0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: linear-gradient(135deg, #fef9f7 0%, #fff5f0 100%);
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  min-height: 100vh;
+}
+
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid var(--border);
+  padding: 0 1.5rem;
+  height: 70px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.logo-sub { font-size: 0.5rem; color: var(--text-dim); letter-spacing: 0.15em; }
+
+.nav-tabs {
+  display: flex; gap: 0.3rem;
+  background: var(--surface2);
+  border-radius: 20px;
+  padding: 6px;
+  border: 1.5px solid var(--border);
+}
+
+.nav-tab {
+  padding: 8px 18px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.nav-tab.active {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.nav-tab:hover:not(.active) {
+  color: var(--primary);
+  background: rgba(255, 107, 157, 0.08);
+}
+
+.app-main { padding-top: 90px; min-height: 100vh; padding-bottom: 2rem; }
+.page { display: none; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.page-header {
+  padding: 2rem 1.5rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.05) 0%, rgba(255, 165, 0, 0.05) 100%);
+  border-radius: 20px;
+  margin: 1rem 1.5rem 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.page-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--primary); }
+.page-title-sub { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; }
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  box-shadow: 0 4px 15px var(--shadow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--primary);
+  border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary);
+  background: rgba(255, 107, 157, 0.05);
+}
+
+.btn-sm { padding: 6px 14px; font-size: 0.75rem; }
+
+.filter-bar {
+  padding: 1.5rem;
+  display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center;
+}
+
+.search-input {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+}
+
+.search-input::placeholder { color: var(--text-light); }
+
+.filter-tag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.filter-tag.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.filter-tag:hover {
+  border-color: var(--primary);
+}
+
+.clothes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 0 1.5rem 3rem;
+}
+
+.clothes-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.clothes-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.card-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-img .placeholder { font-size: 2.5rem; opacity: 0.4; }
+
+.category-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.card-body { padding: 0.9rem; }
+.card-name { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+.card-meta { font-size: 0.7rem; color: var(--text-dim); line-height: 1.4; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tag { padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; background: var(--surface2); color: var(--primary); border: 1px solid var(--border); font-weight: 500; }
+
+.card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.clothes-card:hover .card-actions { opacity: 1; }
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.icon-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.05) 0%, rgba(255, 165, 0, 0.05) 100%);
+  border-radius: 22px 22px 0 0;
+}
+
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(255, 107, 157, 0.1);
+}
+
+.modal-body { padding: 1.5rem; }
+.modal-footer {
+  padding: 1.2rem 1.5rem;
+  border-top: 2px solid var(--border);
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+}
+
+.form-group { margin-bottom: 1.2rem; }
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+}
+
+.form-select option { background: var(--surface); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.upload-area {
+  border: 3px dashed var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+}
+
+.upload-area:hover, .upload-area.drag-over {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.08) 0%, rgba(255, 107, 157, 0.05) 100%);
+}
+
+.upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; }
+.upload-text { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+.upload-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.4rem; }
+.upload-preview { width: 100%; max-height: 220px; object-fit: contain; border-radius: 12px; margin-top: 0.8rem; }
+
+.batch-drop-zone {
+  border: 3px dashed var(--border);
+  border-radius: 16px;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+}
+
+.batch-drop-zone:hover, .batch-drop-zone.drag-over {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(255, 107, 157, 0.08) 100%);
+}
+
+.batch-drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+.batch-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.8rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.batch-item {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.batch-item.editing { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.2); }
+.batch-item:hover { border-color: var(--primary); }
+
+.batch-item-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.batch-item-body { padding: 0.5rem 0.6rem; }
+.batch-item-name { font-size: 0.7rem; color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.batch-item-meta { font-size: 0.6rem; color: var(--text-dim); margin-top: 2px; }
+
+.batch-item-btn {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  cursor: pointer;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+.batch-item-edit { top: 4px; left: 4px; color: var(--primary); }
+.batch-item-remove { top: 4px; right: 4px; color: var(--primary-dark); }
+
+.batch-edit-panel {
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem;
+  margin-top: 1rem;
+}
+
+.batch-edit-title {
+  font-size: 0.8rem;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 700;
+}
+
+.batch-edit-mini-img { width: 44px; height: 56px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border); flex-shrink: 0; }
+
+.batch-progress { height: 6px; background: var(--border); border-radius: 3px; margin-top: 1rem; overflow: hidden; }
+.batch-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 3px; transition: width 0.3s ease; }
+.batch-counter { font-size: 0.75rem; color: var(--text-dim); text-align: right; margin-top: 0.6rem; font-weight: 600; }
+
+.quick-fill-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.08) 0%, rgba(255, 165, 0, 0.08) 100%);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.quick-fill-row label { font-size: 0.75rem; color: var(--primary); font-weight: 700; white-space: nowrap; }
+.quick-fill-row select { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; color: var(--text); padding: 6px 10px; font-size: 0.75rem; outline: none; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all 0.3s; }
+.quick-fill-row select:hover { border-color: var(--primary); }
+.quick-fill-row select:focus { border-color: var(--primary); }
+
+.quick-fill-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.quick-fill-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  z-index: 999;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 8px 20px var(--shadow);
+  font-weight: 600;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.stats-bar {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  margin: 0 1.5rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
+  flex: 1;
+  min-width: 130px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.stat-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--primary); line-height: 1; }
+.stat-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.1em; font-weight: 600; }
+
+.empty-state { text-align: center; padding: 4rem 1.5rem; color: var(--text-dim); }
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.6; }
+.empty-state p { font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+@media (max-width: 600px) {
+  .nav-tab { padding: 6px 12px; font-size: 0.75rem; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .clothes-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .form-row { grid-template-columns: 1fr; }
+  .quick-fill-row { gap: 0.5rem; }
+}
+
+.color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.5rem; }
+.color-swatch { width: 28px; height: 28px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+.color-swatch.selected { border-color: var(--primary); transform: scale(1.15); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <div class="logo">👗 我的衣櫃</div>
+    <div class="logo-sub">Digital Wardrobe</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('wardrobe')">👔 衣物</button>
+    <button class="nav-tab" onclick="showPage('outfit')">✨ 搭配</button>
+    <button class="nav-tab" onclick="showPage('trips')">✈️ 旅行</button>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <button class="btn btn-secondary btn-sm" onclick="openBackupModal()" title="備份與復原">💾</button>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <div id="page-wardrobe" class="page active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">我的衣物</div>
+        <div class="page-title-sub">Manage Your Wardrobe</div>
+      </div>
+      <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-sm" onclick="openBatchImport()">📦 批次匯入</button>
+        <button class="btn btn-primary btn-sm" onclick="openAddClothes()">➕ 新增衣物</button>
+      </div>
+    </div>
+
+    <div class="stats-bar" id="wardrobe-stats"></div>
+
+    <div class="filter-bar">
+      <input class="search-input" id="search-input" placeholder="🔍 搜尋衣物..." oninput="renderClothes()">
+      <div id="category-filters" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+    </div>
+
+    <div class="clothes-grid" id="clothes-grid"></div>
+  </div>
+
+  <div id="page-outfit" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">穿搭組合</div>
+        <div class="page-title-sub">Create Your Outfit</div>
+      </div>
+    </div>
+    <div class="empty-state"><div class="empty-icon">✨</div><p>穿搭功能開發中...</p></div>
+  </div>
+
+  <div id="page-trips" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">旅行規劃</div>
+        <div class="page-title-sub">Trip Packing List</div>
+      </div>
+    </div>
+    <div class="empty-state"><div class="empty-icon">✈️</div><p>旅行功能開發中...</p></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: 新增/編輯衣物 -->
+<div class="modal-overlay" id="modal-clothes">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="clothes-modal-title">新增衣物</div>
+      <button class="modal-close" onclick="closeModal('modal-clothes')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">📷 照片</label>
+        <div class="upload-area" id="upload-area" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+          <input type="file" accept="image/*" onchange="handleImageUpload(event)" id="img-input">
+          <span class="upload-icon">🖼️</span>
+          <div class="upload-text">點擊或拖曳上傳照片</div>
+          <div class="upload-sub">支持 JPG、PNG 等格式</div>
+          <img id="preview-img" class="upload-preview" style="display: none" alt="preview">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">名稱</label>
+          <input class="form-input" id="cl-name" placeholder="例：白色T-shirt">
+        </div>
+        <div class="form-group">
+          <label class="form-label">品牌</label>
+          <input class="form-input" id="cl-brand" placeholder="例：Uniqlo">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">類別</label>
+          <select class="form-select" id="cl-category">
+            <option>上衣</option><option>褲子</option><option>裙子</option><option>外套</option>
+            <option>洋裝</option><option>鞋子</option><option>包包</option><option>配件</option>
+            <option>內搭</option><option>運動</option><option>其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">季節</label>
+          <select class="form-select" id="cl-season">
+            <option>四季</option><option>春夏</option><option>秋冬</option><option>夏</option><option>冬</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">顏色</label>
+        <div class="color-row" id="color-swatches">
+          <div class="color-swatch selected" style="background: #ffffff; border-color: #e8d5d5;" data-color="白色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #222222;" data-color="黑色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #8b7355;" data-color="棕色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #ff6b9d;" data-color="粉紅色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #ff8db5;" data-color="淡粉色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #ffa500;" data-color="橘色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #ffd700;" data-color="黃色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #6bcf7f;" data-color="綠色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #4ecdc4;" data-color="青綠色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #87ceeb;" data-color="藍色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #a29bfe;" data-color="紫色" onclick="selectColor(this)"></div>
+          <div class="color-swatch" style="background: #999999;" data-color="灰色" onclick="selectColor(this)"></div>
+        </div>
+        <input class="form-input" id="cl-color" style="margin-top: 0.8rem;" placeholder="或輸入顏色描述" value="白色">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">風格</label>
+          <input class="form-input" id="cl-style" placeholder="例：休閒、正式">
+        </div>
+        <div class="form-group">
+          <label class="form-label">購入價格</label>
+          <input class="form-input" id="cl-price" type="number" placeholder="NT$">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">備註</label>
+        <textarea class="form-textarea" id="cl-note" placeholder="材質、保養方式..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-clothes')">取消</button>
+      <button class="btn btn-primary" onclick="saveClothes()">💾 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 衣物詳情 -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-title">衣物詳情</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" id="detail-delete-btn">🗑 刪除</button>
+      <button class="btn btn-secondary btn-sm" id="detail-edit-btn">✏️ 編輯</button>
+      <button class="btn btn-primary btn-sm" onclick="closeModal('modal-detail')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 批次匯入 -->
+<div class="modal-overlay" id="modal-batch">
+  <div class="modal" style="max-width: 760px;">
+    <div class="modal-header">
+      <div class="modal-title">📦 批次匯入衣物</div>
+      <button class="modal-close" onclick="closeBatchImport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="batch-step-upload">
+        <div class="batch-drop-zone" id="batch-drop-zone" ondragover="handleBatchDragOver(event)" ondrop="handleBatchDrop(event)" ondragleave="handleBatchDragLeave(event)">
+          <input type="file" multiple accept="image/*" onchange="handleBatchImageUpload(event)" id="batch-img-input">
+          <span class="upload-icon">🖼️</span>
+          <div class="upload-text">點擊或拖曳上傳多張照片</div>
+          <div class="upload-sub">支持 JPG、PNG 等圖片格式</div>
+        </div>
+        <div style="margin-top: 1.2rem; display: flex; gap: 0.8rem; justify-content: space-between;">
+          <button class="btn btn-secondary" onclick="closeBatchImport()">取消</button>
+          <button class="btn btn-primary" onclick="stepToBatchEdit()" id="batch-next-btn" style="display: none;">下一步 ➜</button>
+        </div>
+      </div>
+
+      <div id="batch-step-edit" style="display: none;">
+        <div class="quick-fill-row">
+          <label>⚡ 快速填充：</label>
+          <select id="batch-quick-category">
+            <option value="">類別</option>
+            <option>上衣</option><option>褲子</option><option>裙子</option><option>外套</option>
+            <option>洋裝</option><option>鞋子</option><option>包包</option><option>配件</option>
+            <option>內搭</option><option>運動</option><option>其他</option>
+          </select>
+          <select id="batch-quick-brand">
+            <option value="">品牌</option>
+            <option>Uniqlo</option><option>ZARA</option><option>H&M</option><option>Forever 21</option>
+            <option>無印良品</option><option>GU</option><option>Shein</option><option>其他</option>
+          </select>
+          <select id="batch-quick-season">
+            <option value="">季節</option>
+            <option>四季</option><option>春夏</option><option>秋冬</option><option>夏</option><option>冬</option>
+          </select>
+          <button class="quick-fill-btn" onclick="applyAllBatch()">✨ 套用</button>
+        </div>
+
+        <div class="batch-preview-grid" id="batch-preview-grid"></div>
+        <div class="batch-progress"><div class="batch-progress-bar" id="batch-progress-bar"></div></div>
+        <div class="batch-counter" id="batch-counter">已填 0 / 0</div>
+
+        <div id="batch-edit-panel" style="display: none;"></div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; justify-content: space-between;">
+          <button class="btn btn-secondary" onclick="resetBatchImport()">← 重新選擇</button>
+          <button class="btn btn-primary" onclick="saveBatchImport()" id="batch-save-btn">✅ 儲存全部</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 備份與復原 -->
+<div class="modal-overlay" id="modal-backup">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">💾 備份與復原</div>
+      <button class="modal-close" onclick="closeModal('modal-backup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align: center; padding: 1rem 0;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">💾</div>
+        <p style="color: var(--text-dim); margin-bottom: 1.5rem;">備份你的所有資料，換手機也能恢復</p>
+      </div>
+      <div style="background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%); border-radius: 14px; padding: 1.2rem; border: 2px solid var(--border);">
+        <div style="margin-bottom: 1rem;">
+          <h3 style="font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">📥 匯出資料</h3>
+          <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">將所有衣物資料下載為 JSON 檔案</p>
+          <button class="btn btn-primary" style="width: 100%;" onclick="exportData()">📥 下載備份檔案</button>
+        </div>
+      </div>
+      <div style="background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%); border-radius: 14px; padding: 1.2rem; border: 2px solid var(--border); margin-top: 1rem;">
+        <div>
+          <h3 style="font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">📤 匯入資料</h3>
+          <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">上傳之前備份的 JSON 檔案恢復資料</p>
+          <input type="file" accept=".json" id="import-file-input" style="display: none;" onchange="handleImportFile(event)">
+          <button class="btn btn-primary" style="width: 100%;" onclick="document.getElementById('import-file-input').click()">📤 上傳備份檔案</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-backup')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== IndexedDB =====================
+const DB_NAME = 'WardrobeDB', DB_VER = 1;
+let db;
+
+function initDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      ['clothes', 'outfits', 'trips'].forEach(s => {
+        if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: 'id' });
+      });
+    };
+    req.onsuccess = e => { db = e.target.result; res(); };
+    req.onerror = e => rej(e);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = e => res(e.target.result || []);
+    req.onerror = e => rej(e);
+  });
+}
+
+function dbPut(store, item) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(item);
+    req.onsuccess = () => res();
+    req.onerror = e => rej(e);
+  });
+}
+
+function dbDelete(store, id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(id);
+    req.onsuccess = () => res();
+    req.onerror = e => rej(e);
+  });
+}
+
+let clothes = [], outfits = [], trips = [];
+
+async function loadAll() {
+  clothes = await dbGetAll('clothes');
+  outfits = await dbGetAll('outfits');
+  trips = await dbGetAll('trips');
+  clothes.sort((a,b) => (b.addedAt||'') > (a.addedAt||'') ? 1 : -1);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  ['wardrobe', 'outfit', 'trips'].forEach((n, i) => {
+    if (n === id) document.querySelectorAll('.nav-tab')[i].classList.add('active');
+  });
+  if (id === 'wardrobe') renderClothes();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
+
+function compressImage(dataUrl, quality = 0.65, maxWidth = 1024, maxHeight = 1280) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width, height = img.height;
+      if (width > height) {
+        if (width > maxWidth) { height = Math.round(height * (maxWidth / width)); width = maxWidth; }
+      } else {
+        if (height > maxHeight) { width = Math.round(width * (maxHeight / height)); height = maxHeight; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+// ===================== CLOTHES =====================
+let editingClothesId = null, currentImageData = null;
+const CATEGORIES = ['全部','上衣','褲子','裙子','外套','洋裝','鞋子','包包','配件','內搭','運動','其他'];
+let activeCategory = '全部';
+
+function openAddClothes() {
+  editingClothesId = null;
+  currentImageData = null;
+  document.getElementById('clothes-modal-title').textContent = '新增衣物';
+  ['cl-name','cl-brand','cl-style','cl-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cl-price').value = '';
+  document.getElementById('cl-category').value = '上衣';
+  document.getElementById('cl-season').value = '四季';
+  document.getElementById('cl-color').value = '白色';
+  document.getElementById('preview-img').style.display = 'none';
+  document.querySelectorAll('.color-swatch').forEach((s, i) => s.classList.toggle('selected', i === 0));
+  openModal('modal-clothes');
+}
+
+function handleImageUpload(e) { const f = e.target.files[0]; if (f) readImageFile(f); }
+function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function handleDrop(e) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) readImageFile(f); }
+
+function readImageFile(file) {
+  const r = new FileReader();
+  r.onload = async ev => {
+    currentImageData = await compressImage(ev.target.result, 0.65, 1024, 1280);
+    const img = document.getElementById('preview-img');
+    img.src = currentImageData;
+    img.style.display = 'block';
+  };
+  r.readAsDataURL(file);
+}
+
+function selectColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('cl-color').value = el.dataset.color;
+}
+
+async function saveClothes() {
+  const name = document.getElementById('cl-name').value.trim();
+  if (!name) { alert('請輸入衣物名稱'); return; }
+  const item = {
+    id: editingClothesId || Date.now().toString(),
+    name, brand: document.getElementById('cl-brand').value.trim(),
+    category: document.getElementById('cl-category').value,
+    season: document.getElementById('cl-season').value,
+    color: document.getElementById('cl-color').value.trim(),
+    style: document.getElementById('cl-style').value.trim(),
+    price: document.getElementById('cl-price').value,
+    note: document.getElementById('cl-note').value.trim(),
+    image: currentImageData,
+    addedAt: editingClothesId ? (clothes.find(c => c.id === editingClothesId)||{}).addedAt : new Date().toISOString()
+  };
+  await dbPut('clothes', item);
+  if (editingClothesId) {
+    const idx = clothes.findIndex(c => c.id === editingClothesId);
+    clothes[idx] = item;
+  } else {
+    clothes.unshift(item);
+  }
+  closeModal('modal-clothes');
+  renderClothes();
+  toast('✅ 衣物已儲存');
+}
+
+async function deleteClothes(id) {
+  if (!confirm('確定要刪除嗎？')) return;
+  await dbDelete('clothes', id);
+  clothes = clothes.filter(c => c.id !== id);
+  closeModal('modal-detail');
+  renderClothes();
+  toast('🗑 已刪除');
+}
+
+function categoryIcon(cat) {
+  return {'上衣':'👕','褲子':'👖','裙子':'👗','外套':'🧥','洋裝':'👗','鞋子':'👟','包包':'👜','配件':'💍','內搭':'🩱','運動':'⚽','其他':'👔'}[cat]||'👔';
+}
+
+function renderClothes() {
+  const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const filtered = clothes.filter(c => {
+    const mc = activeCategory === '全部' || c.category === activeCategory;
+    const ms = !search || c.name.toLowerCase().includes(search) || (c.brand||'').toLowerCase().includes(search) || (c.color||'').toLowerCase().includes(search);
+    return mc && ms;
+  });
+  const catCounts = {};
+  clothes.forEach(c => { catCounts[c.category] = (catCounts[c.category]||0)+1; });
+  const topCat = Object.entries(catCounts).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('wardrobe-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${clothes.length}</div><div class="stat-label">件衣物</div></div>
+    <div class="stat-card"><div class="stat-num">${outfits.length}</div><div class="stat-label">套搭配</div></div>
+    <div class="stat-card"><div class="stat-num">${trips.length}</div><div class="stat-label">趟旅行</div></div>
+    ${topCat?`<div class="stat-card"><div class="stat-num">${topCat[1]}</div><div class="stat-label">${topCat[0]}</div></div>`:''}
+  `;
+  document.getElementById('category-filters').innerHTML = CATEGORIES.map(cat =>
+    `<button class="filter-tag ${cat === activeCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`
+  ).join('');
+  const grid = document.getElementById('clothes-grid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">${clothes.length === 0 ? '👗' : '🔍'}</div><p>${clothes.length === 0 ? '還沒有衣物' : '沒有符合條件'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(c => `
+    <div class="clothes-card" onclick="showClothesDetail('${c.id}')">
+      <div class="card-img">
+        ${c.image ? `<img src="${c.image}" alt="${c.name}">` : `<div class="placeholder">${categoryIcon(c.category)}</div>`}
+        <div class="category-badge">${c.category}</div>
+        <div class="card-actions">
+          <button class="icon-btn" onclick="event.stopPropagation();editClothes('${c.id}')" title="編輯">✏️</button>
+          <button class="icon-btn" onclick="event.stopPropagation();deleteClothes('${c.id}')" title="刪除">🗑</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${c.name}</div>
+        <div class="card-meta">${c.brand||''}${c.brand&&c.color?'·':''}${c.color||''}</div>
+        <div class="card-tags">${c.season?`<span class="tag">${c.season}</span>`:''}${c.style?`<span class="tag">${c.style}</span>`:''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setCategory(cat) { activeCategory = cat; renderClothes(); }
+
+function editClothes(id) {
+  const item = clothes.find(c => c.id === id);
+  if (!item) return;
+  editingClothesId = id;
+  currentImageData = item.image || null;
+  document.getElementById('clothes-modal-title').textContent = '編輯衣物';
+  document.getElementById('cl-name').value = item.name;
+  document.getElementById('cl-brand').value = item.brand || '';
+  document.getElementById('cl-category').value = item.category;
+  document.getElementById('cl-season').value = item.season || '四季';
+  document.getElementById('cl-color').value = item.color || '';
+  document.getElementById('cl-style').value = item.style || '';
+  document.getElementById('cl-price').value = item.price || '';
+  document.getElementById('cl-note').value = item.note || '';
+  if (item.image) {
+    document.getElementById('preview-img').src = item.image;
+    document.getElementById('preview-img').style.display = 'block';
+  } else {
+    document.getElementById('preview-img').style.display = 'none';
+  }
+  closeModal('modal-detail');
+  openModal('modal-clothes');
+}
+
+function showClothesDetail(id) {
+  const c = clothes.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('detail-title').textContent = c.name;
+  document.getElementById('modal-detail-body').innerHTML = `
+    ${c.image ? `<img src="${c.image}" style="width:100%;max-height:280px;object-fit:contain;border-radius:12px;margin-bottom:1.2rem;background:var(--surface2);border:2px solid var(--border);">` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">類別</div><div style="font-size:.9rem;font-weight:600">${c.category}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">季節</div><div style="font-size:.9rem;font-weight:600">${c.season || '-'}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">顏色</div><div style="font-size:.9rem;font-weight:600">${c.color || '-'}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">品牌</div><div style="font-size:.9rem;font-weight:600">${c.brand || '-'}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">風格</div><div style="font-size:.9rem;font-weight:600">${c.style || '-'}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:.8rem;border:2px solid var(--border)"><div style="font-size:.7rem;color:var(--primary);letter-spacing:.1em;margin-bottom:4px;font-weight:700">價格</div><div style="font-size:.9rem;font-weight:600">${c.price ? 'NT$' + c.price : '-'}</div></div>
+    </div>
+    ${c.note ? `<div style="margin-top:1rem;padding:1rem;background:var(--surface2);border-radius:10px;font-size:.85rem;color:var(--text);line-height:1.6;border:2px solid var(--border)">${c.note}</div>` : ''}
+    <div style="margin-top:.8rem;font-size:.7rem;color:var(--text-dim)">新增於 ${new Date(c.addedAt).toLocaleDateString('zh-TW')}</div>
+  `;
+  document.getElementById('detail-delete-btn').onclick = () => deleteClothes(id);
+  document.getElementById('detail-edit-btn').onclick = () => editClothes(id);
+  openModal('modal-detail');
+}
+
+// ===================== 批次匯入 =====================
+let batchItems = [];
+
+function openBatchImport() {
+  batchItems = [];
+  document.getElementById('batch-step-upload').style.display = 'block';
+  document.getElementById('batch-step-edit').style.display = 'none';
+  document.getElementById('batch-img-input').value = '';
+  openModal('modal-batch');
+}
+
+function closeBatchImport() {
+  batchItems = [];
+  closeModal('modal-batch');
+}
+
+function resetBatchImport() {
+  batchItems = [];
+  document.getElementById('batch-step-upload').style.display = 'block';
+  document.getElementById('batch-step-edit').style.display = 'none';
+  document.getElementById('batch-img-input').value = '';
+}
+
+function handleBatchImageUpload(e) {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+  document.getElementById('batch-next-btn').style.display = 'none';
+  processBatchFiles(files);
+}
+
+function handleBatchDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function handleBatchDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function handleBatchDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (files.length > 0) {
+    document.getElementById('batch-next-btn').style.display = 'none';
+    processBatchFiles(files);
+  }
+}
+
+async function processBatchFiles(files) {
+  const total = files.length;
+  let loaded = 0;
+  
+  for (let idx = 0; idx < files.length; idx++) {
+    const file = files[idx];
+    const reader = new FileReader();
+    
+    reader.onload = async (ev) => {
+      const compressed = await compressImage(ev.target.result, 0.65, 1024, 1280);
+      batchItems.push({
+        id: Date.now() + idx,
+        image: compressed,
+        name: file.name.replace(/\.[^/.]+$/, ''),
+        brand: '',
+        category: '',
+        season: '',
+        color: '',
+        style: '',
+        price: '',
+        note: ''
+      });
+      loaded++;
+      document.getElementById('batch-next-btn').style.display = 'inline-flex';
+      document.getElementById('batch-next-btn').textContent = `完成 ${loaded}/${total}`;
+      if (loaded === total) {
+        setTimeout(() => {
+          document.getElementById('batch-next-btn').textContent = '下一步 ➜';
+        }, 300);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function stepToBatchEdit() {
+  if (batchItems.length === 0) { alert('請選擇至少一張照片'); return; }
+  document.getElementById('batch-step-upload').style.display = 'none';
+  document.getElementById('batch-step-edit').style.display = 'block';
+  setTimeout(() => renderBatchPreview(), 100);
+}
+
+function renderBatchPreview() {
+  const grid = document.getElementById('batch-preview-grid');
+  grid.innerHTML = '';
+  let html = '';
+  batchItems.forEach((item, idx) => {
+    html += `
+      <div class="batch-item" id="batch-item-${idx}">
+        <img src="${item.image}" class="batch-item-img" alt="${item.name}">
+        <button class="batch-item-btn batch-item-edit" onclick="editBatchItem(${idx})" title="編輯">✏️</button>
+        <button class="batch-item-btn batch-item-remove" onclick="removeBatchItem(${idx})" title="刪除">✕</button>
+        <div class="batch-item-body">
+          <div class="batch-item-name">${item.name}</div>
+          <div class="batch-item-meta">${item.category || '未選'}${item.brand ? '·' + item.brand : ''}</div>
+        </div>
+      </div>
+    `;
+  });
+  grid.innerHTML = html;
+  updateBatchProgress();
+}
+
+let editingBatchIdx = -1;
+
+function editBatchItem(idx) {
+  editingBatchIdx = editingBatchIdx === idx ? -1 : idx;
+  document.querySelectorAll('.batch-item').forEach((el, i) => {
+    if (i === idx) el.classList.toggle('editing');
+    else el.classList.remove('editing');
+  });
+  if (editingBatchIdx !== -1) {
+    renderBatchEditPanel(idx);
+  } else {
+    document.getElementById('batch-edit-panel').style.display = 'none';
+  }
+}
+
+function renderBatchEditPanel(idx) {
+  const item = batchItems[idx];
+  const panel = document.getElementById('batch-edit-panel');
+  panel.innerHTML = `
+    <div class="batch-edit-panel">
+      <div class="batch-edit-title">
+        <img src="${item.image}" class="batch-edit-mini-img" alt="">
+        <span>編輯：${item.name}</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">名稱</label>
+          <input class="form-input" value="${item.name}" onchange="batchItems[${idx}].name = this.value; document.getElementById('batch-item-${idx}').querySelector('.batch-item-name').textContent = this.value">
+        </div>
+        <div class="form-group">
+          <label class="form-label">品牌</label>
+          <input class="form-input" value="${item.brand || ''}" onchange="batchItems[${idx}].brand = this.value; updateBatchProgress()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">類別</label>
+          <select class="form-select" onchange="batchItems[${idx}].category = this.value; document.getElementById('batch-item-${idx}').querySelector('.batch-item-meta').textContent = this.value + (batchItems[${idx}].brand ? '·' + batchItems[${idx}].brand : ''); updateBatchProgress()">
+            <option value="">選擇...</option>
+            <option ${item.category === '上衣' ? 'selected' : ''}>上衣</option>
+            <option ${item.category === '褲子' ? 'selected' : ''}>褲子</option>
+            <option ${item.category === '裙子' ? 'selected' : ''}>裙子</option>
+            <option ${item.category === '外套' ? 'selected' : ''}>外套</option>
+            <option ${item.category === '洋裝' ? 'selected' : ''}>洋裝</option>
+            <option ${item.category === '鞋子' ? 'selected' : ''}>鞋子</option>
+            <option ${item.category === '包包' ? 'selected' : ''}>包包</option>
+            <option ${item.category === '配件' ? 'selected' : ''}>配件</option>
+            <option ${item.category === '內搭' ? 'selected' : ''}>內搭</option>
+            <option ${item.category === '運動' ? 'selected' : ''}>運動</option>
+            <option ${item.category === '其他' ? 'selected' : ''}>其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">季節</label>
+          <select class="form-select" onchange="batchItems[${idx}].season = this.value">
+            <option value="">選擇...</option>
+            <option ${item.season === '四季' ? 'selected' : ''}>四季</option>
+            <option ${item.season === '春夏' ? 'selected' : ''}>春夏</option>
+            <option ${item.season === '秋冬' ? 'selected' : ''}>秋冬</option>
+            <option ${item.season === '夏' ? 'selected' : ''}>夏</option>
+            <option ${item.season === '冬' ? 'selected' : ''}>冬</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">顏色</label>
+        <input class="form-input" value="${item.color || ''}" placeholder="例：黑色、白色" onchange="batchItems[${idx}].color = this.value">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">風格</label>
+          <input class="form-input" value="${item.style || ''}" placeholder="例：休閒、正式" onchange="batchItems[${idx}].style = this.value">
+        </div>
+        <div class="form-group">
+          <label class="form-label">價格</label>
+          <input class="form-input" type="number" value="${item.price || ''}" placeholder="NT$" onchange="batchItems[${idx}].price = this.value">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">備註</label>
+        <textarea class="form-textarea" onchange="batchItems[${idx}].note = this.value" placeholder="材質、保養方式...">${item.note || ''}</textarea>
+      </div>
+    </div>
+  `;
+  panel.style.display = 'block';
+}
+
+function removeBatchItem(idx) {
+  if (confirm('確定要刪除嗎？')) {
+    batchItems.splice(idx, 1);
+    if (editingBatchIdx === idx) editingBatchIdx = -1;
+    else if (editingBatchIdx > idx) editingBatchIdx--;
+    renderBatchPreview();
+  }
+}
+
+function applyAllBatch() {
+  const cat = document.getElementById('batch-quick-category').value;
+  const brand = document.getElementById('batch-quick-brand').value;
+  const season = document.getElementById('batch-quick-season').value;
+  if (!cat && !brand && !season) { alert('請選擇至少一個屬性'); return; }
+  batchItems.forEach(item => {
+    if (cat) item.category = cat;
+    if (brand) item.brand = brand;
+    if (season) item.season = season;
+  });
+  renderBatchPreview();
+  toast('✨ 已套用所有設定');
+}
+
+function updateBatchProgress() {
+  const total = batchItems.length;
+  const filled = batchItems.filter(i => i.category && i.name).length;
+  const percent = total > 0 ? (filled / total * 100) : 0;
+  document.getElementById('batch-progress-bar').style.width = percent + '%';
+  document.getElementById('batch-counter').textContent = `已填 ${filled} / ${total}`;
+  document.getElementById('batch-save-btn').disabled = filled < total;
+  document.getElementById('batch-save-btn').style.opacity = filled < total ? '0.5' : '1';
+}
+
+async function saveBatchImport() {
+  const incomplete = batchItems.filter(i => !i.category || !i.name);
+  if (incomplete.length > 0) { alert(`還有 ${incomplete.length} 項未完成`); return; }
+  
+  document.getElementById('batch-save-btn').disabled = true;
+  document.getElementById('batch-save-btn').textContent = '儲存中...';
+  
+  let saved = 0;
+  const total = batchItems.length;
+  
+  for (const item of batchItems) {
+    const clothesItem = {
+      id: item.id.toString(),
+      name: item.name,
+      brand: item.brand,
+      category: item.category,
+      season: item.season || '四季',
+      color: item.color,
+      style: item.style,
+      price: item.price,
+      note: item.note,
+      image: item.image,
+      addedAt: new Date().toISOString()
+    };
+    try {
+      await dbPut('clothes', clothesItem);
+      clothes.unshift(clothesItem);
+      saved++;
+      if (saved % 3 === 0 || saved === total) {
+        document.getElementById('batch-save-btn').textContent = `儲存中... ${saved}/${total}`;
+        await new Promise(r => setTimeout(r, 50));
+      }
+    } catch (e) {
+      console.error('Save error:', e);
+    }
+  }
+  
+  toast(`✅ 已新增 ${saved} 件衣物`);
+  closeBatchImport();
+  renderClothes();
+}
+
+// ===================== 備份與復原 =====================
+function openBackupModal() { openModal('modal-backup'); }
+
+function exportData() {
+  const data = { clothes, outfits, trips };
+  const dataStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wardrobe-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('💾 備份檔案已下載');
+}
+
+function handleImportFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.clothes || !data.outfits || !data.trips) throw new Error('格式錯誤');
+      
+      for (const item of data.clothes) await dbPut('clothes', item);
+      for (const item of data.outfits) await dbPut('outfits', item);
+      for (const item of data.trips) await dbPut('trips', item);
+      
+      await loadAll();
+      renderClothes();
+      closeModal('modal-backup');
+      toast('✅ 資料已復原');
+    } catch (err) {
+      alert('導入失敗：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ===================== 初始化 =====================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+initDB().then(async () => {
+  await loadAll();
+  renderClothes();
+}).catch(err => {
+  console.error('DB init failed', err);
+  alert('資料庫初始化失敗');
+});
+</script>
+
+</body>
+</html>
